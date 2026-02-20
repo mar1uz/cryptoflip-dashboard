@@ -9,12 +9,13 @@
 
 /* ── CONSTANTS ─────────────────────────────────────────── */
 const GT_BASE = 'https://api.geckoterminal.com/api/v2';
+const CORS_PROXY = 'https://api.allorigins.win/raw?url='; // fallback pt file:// local
 const EMA_FAST = 9;
 const EMA_SLOW = 21;
 const RSI_PERIOD = 14;
 const RSI_BULL = 52;
 const RSI_BEAR = 48;
-const MAX_COINS = 20;   // top N trending pools to load
+const MAX_COINS = 20;
 
 /* ── STATE ────────────────────────────────────────────── */
 let allData = [];
@@ -25,21 +26,47 @@ let currentSort = 'trending'; // trending | volume | change | liq
 let currentDSSymbol = '';
 
 /* ── GECKO TERMINAL API ───────────────────────────────── */
+
+/**
+ * smartFetch: încearcă request direct; dacă primim CORS/TypeError
+ * (se întâmplă pe file:// sau la unele browsere) va reîncerca
+ * automat prin proxy allorigins. Pe GitHub Pages (HTTPS) merge direct.
+ */
+let _usedProxy = false;
+async function smartFetch(url) {
+    if (!_usedProxy) {
+        try {
+            const r = await fetch(url, { mode: 'cors' });
+            if (r.ok) return r;
+            if (r.status === 429) throw new Error('Rate limit GeckoTerminal (429). Revino într-un minut.');
+            if (r.status >= 400) throw new Error(`API error ${r.status}`);
+        } catch (err) {
+            if (!err.message.includes('429') && !err.message.includes('API error')) {
+                console.warn('Direct fetch blocat (CORS?). Încerc prin proxy...', url);
+                _usedProxy = true; // nu mai încerc direct pt restul sesiunii
+            } else { throw err; }
+        }
+    }
+    // Fallback proxy
+    const proxyUrl = CORS_PROXY + encodeURIComponent(url);
+    const r = await fetch(proxyUrl);
+    if (!r.ok) throw new Error(`Proxy error ${r.status}`);
+    return r;
+}
+
 async function fetchTrending() {
-    // page=1 returns top ~20 trending pools on Solana
-    const r = await fetch(`${GT_BASE}/networks/solana/trending_pools?page=1&duration=24h`);
-    if (!r.ok) throw new Error(`GeckoTerminal ${r.status}`);
+    const r = await smartFetch(`${GT_BASE}/networks/solana/trending_pools?page=1&duration=24h`);
     const json = await r.json();
     return json.data || [];
 }
 
 async function fetchOHLCV(poolAddress) {
-    // 1H candles, limit=100 (enough for EMA9/21 + RSI14 on 1H and approx 4H/1D)
     const url = `${GT_BASE}/networks/solana/pools/${poolAddress}/ohlcv/hour?aggregate=1&limit=100&currency=usd&token=base`;
-    const r = await fetch(url);
-    if (!r.ok) return null;
-    const json = await r.json();
-    return json.data?.attributes?.ohlcv_list || null; // [[ts,o,h,l,c,v], ...]
+    try {
+        const r = await smartFetch(url);
+        const json = await r.json();
+        return json.data?.attributes?.ohlcv_list || null;
+    } catch { return null; }
 }
 
 /* ── INDICATORS ───────────────────────────────────────── */
