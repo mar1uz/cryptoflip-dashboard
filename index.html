@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CryptoFlip Dashboard | Bullish & Bearish Signals</title>
+  <meta name="description" content="Dashboard real-time care detectează flip-uri bullish și bearish pe multiple timeframe-uri pentru principalele crypto assets." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" fill="url(#logoGrad)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+            <path d="M14 7L20 10.5V17.5L14 21L8 17.5V10.5L14 7Z" fill="rgba(255,255,255,0.15)"/>
+            <path d="M10 13L13 16L18 11" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="2" y1="2" x2="26" y2="26">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-text">CryptoFlip</span>
+      </div>
+      <div class="header-controls">
+        <div class="last-update" id="lastUpdate">
+          <div class="pulse-dot"></div>
+          <span>Se actualizează...</span>
+        </div>
+        <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M13.65 2.35A8 8 0 1 0 15 8h-2a6 6 0 1 1-1.05-3.35L9 7h5V2l-0.35 0.35Z" fill="currentColor"/>
+          </svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Stats Bar -->
+  <div class="stats-bar">
+    <div class="stats-bar-inner">
+      <div class="stat-item" id="statBullish">
+        <span class="stat-value bullish-text" id="bullishCount">–</span>
+        <span class="stat-label">Bullish</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item" id="statBearish">
+        <span class="stat-value bearish-text" id="bearishCount">–</span>
+        <span class="stat-label">Bearish</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value neutral-text" id="neutralCount">–</span>
+        <span class="stat-label">Neutru</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value" id="totalAssets">–</span>
+        <span class="stat-label">Assets</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeframe Filter -->
+  <div class="controls-section">
+    <div class="controls-inner">
+      <div class="filter-group">
+        <span class="filter-label">Timeframe:</span>
+        <div class="tf-buttons" id="tfButtons">
+          <button class="tf-btn active" data-tf="1h" onclick="filterTimeframe('1h')">1H</button>
+          <button class="tf-btn" data-tf="4h" onclick="filterTimeframe('4h')">4H</button>
+          <button class="tf-btn" data-tf="1d" onclick="filterTimeframe('1d')">1D</button>
+          <button class="tf-btn" data-tf="1w" onclick="filterTimeframe('1w')">1W</button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Semnal:</span>
+        <div class="signal-buttons">
+          <button class="signal-btn active" data-signal="all" onclick="filterSignal('all')">Toate</button>
+          <button class="signal-btn bullish-filter" data-signal="bullish" onclick="filterSignal('bullish')">🟢 Bullish</button>
+          <button class="signal-btn bearish-filter" data-signal="bearish" onclick="filterSignal('bearish')">🔴 Bearish</button>
+        </div>
+      </div>
+      <div class="search-group">
+        <input type="text" class="search-input" id="searchInput" placeholder="Caută asset..." oninput="filterSearch(this.value)" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Loading State -->
+    <div class="loading-state" id="loadingState">
+      <div class="loading-spinner"></div>
+      <p>Se încarcă datele de piață...</p>
+      <span class="loading-sub">Conectare la Binance API</span>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state hidden" id="errorState">
+      <div class="error-icon">⚠️</div>
+      <h3>Eroare la încărcarea datelor</h3>
+      <p id="errorMessage">Nu s-a putut conecta la API.</p>
+      <button class="refresh-btn" onclick="refreshData()">Încearcă din nou</button>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid hidden" id="dashboardGrid">
+    </div>
+  </main>
+
+  <!-- Legend / Info Panel -->
+  <div class="info-panel">
+    <div class="info-inner">
+      <div class="info-item">
+        <div class="indicator-box bullish-bg">EMA9 &gt; EMA21</div>
+        <span>= Bullish Flip</span>
+      </div>
+      <div class="info-item">
+        <div class="indicator-box bearish-bg">EMA9 &lt; EMA21</div>
+        <span>= Bearish Flip</span>
+      </div>
+      <div class="info-item info-note">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="6" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
+          <path d="M7 6v4M7 4.5v.5" stroke="rgba(255,255,255,0.6)" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        <span>Date via Binance Public API · EMA 9/21 crossover</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Asset Detail Modal -->
+  <div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" id="assetModal">
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+      <div class="modal-header">
+        <span class="modal-asset-icon" id="modalIcon">₿</span>
+        <div>
+          <h2 class="modal-title" id="modalTitle">Bitcoin</h2>
+          <span class="modal-subtitle" id="modalSymbol">BTCUSDT</span>
+        </div>
+        <div class="modal-price" id="modalPrice">$0.00</div>
+      </div>
+      <div class="modal-timeframes" id="modalTimeframes"></div>
+      <div class="modal-legend">
+        <div class="legend-row">
+          <span class="legend-dot bullish-bg"></span><span>Bullish — EMA9 peste EMA21</span>
+        </div>
+        <div class="legend-row">
+          <span class="legend-dot bearish-bg"></span><span>Bearish — EMA9 sub EMA21</span>
+        </div>
+        <div class="legend-row">
+          <span class="legend-dot neutral-bg"></span><span>Neutru — Date insuficiente</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
