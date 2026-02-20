@@ -357,6 +357,10 @@ function openTVChart(symbol) {
     else if (data.confirmedSignal === 'confirmed-bearish') { badgeEl.textContent = '⛔ Bearish'; badgeEl.className = 'tv-asset-badge badge-confirmed-bearish'; }
     else { badgeEl.textContent = '⚠️ Slab'; badgeEl.className = 'tv-asset-badge badge-weak'; }
 
+    // Link extern → TradingView.com
+    const tvLink = document.getElementById('tvExternalLink');
+    if (tvLink) tvLink.href = `https://www.tradingview.com/chart/?symbol=BINANCE:${symbol}`;
+
     // Reset interval buttons
     document.querySelectorAll('.tv-itf').forEach(b => b.classList.remove('active'));
     document.querySelector(`.tv-itf[data-iv="${tvInterval}"]`)?.classList.add('active');
