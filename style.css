@@ -1879,37 +1879,419 @@ body::before {
     height: 100%;
 }
 
-/* ===== Responsive TV ===== */
+/* =============================================================
+   RESPONSIVE — TABLET (≤ 900px)
+   ============================================================= */
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 14px;
+    }
+
+    .stat-item {
+        padding: 14px 20px;
+    }
+}
+
+/* =============================================================
+   RESPONSIVE — TABLET PORTRAIT (≤ 768px)
+   ============================================================= */
 @media (max-width: 768px) {
+
+    /* ── Header ── */
+    .header-inner {
+        padding: 0 16px;
+        height: 56px;
+        gap: 10px;
+    }
+
+    .logo-text {
+        font-size: 16px;
+    }
+
+    .last-update span {
+        display: none;
+    }
+
+    .last-update {
+        padding: 6px 10px;
+    }
+
+    #notifLabel {
+        display: none;
+    }
+
+    .notif-btn {
+        padding: 8px 10px;
+    }
+
+    /* ── Stats bar — 2×2 grid ── */
+    .stats-bar-inner {
+        flex-wrap: wrap;
+        padding: 0 16px;
+        justify-content: space-between;
+    }
+
+    .stat-item {
+        flex: 0 0 calc(50% - 1px);
+        padding: 12px 12px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .stat-item:nth-child(odd) {
+        border-right: 1px solid var(--border);
+    }
+
+    .stat-item:nth-child(3),
+    .stat-item:nth-child(4) {
+        border-bottom: none;
+    }
+
+    .stat-divider {
+        display: none;
+    }
+
+    .stat-value {
+        font-size: 22px;
+    }
+
+    .stat-label {
+        font-size: 10px;
+    }
+
+    /* Notification banner */
+    .notif-banner-inner {
+        flex-wrap: wrap;
+        padding: 10px 16px;
+        gap: 8px;
+        font-size: 12px;
+    }
+
+    .notif-banner-inner>div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+
+    /* ── Controls — horizontal scroll ── */
+    .controls-inner {
+        padding: 10px 16px;
+        gap: 10px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .controls-inner::-webkit-scrollbar {
+        display: none;
+    }
+
+    .filter-label {
+        display: none;
+    }
+
+    .search-group {
+        flex-shrink: 0;
+    }
+
+    .search-input {
+        width: 140px;
+    }
+
+    .search-input:focus {
+        width: 160px;
+    }
+
+    /* ── Add asset panel ── */
+    .add-panel-inner {
+        padding: 14px 16px;
+    }
+
+    .add-panel-form {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .add-input-wrap {
+        max-width: 100%;
+    }
+
+    .add-confirm-btn {
+        width: 100%;
+    }
+
+    /* ── Dashboard grid — 1 col ── */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .main-content {
+        padding: 16px 0;
+    }
+
+    /* ── Info panel ── */
+    .info-inner {
+        padding: 12px 16px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        gap: 16px;
+        scrollbar-width: none;
+    }
+
+    .info-inner::-webkit-scrollbar {
+        display: none;
+    }
+
+    .info-note {
+        display: none;
+    }
+
+    /* ── TradingView modal — full screen sheet ── */
+    .tv-overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
+
     .tv-modal {
-        height: 95vh;
-        border-radius: var(--radius-lg);
+        width: 100%;
+        height: 96vh;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        border-bottom: none;
     }
 
     .tv-header {
+        padding: 12px 14px;
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
+        gap: 8px;
     }
 
     .tv-controls {
         width: 100%;
         justify-content: space-between;
-    }
-
-    .tv-asset-info {
-        gap: 8px;
+        gap: 6px;
     }
 
     .tv-asset-price {
         font-size: 15px;
     }
 
-    .add-panel-form {
-        flex-direction: column;
+    .tv-signals-btn {
+        padding: 6px 10px;
+        font-size: 11px;
     }
 
-    .add-input-wrap {
+    .tv-close-btn {
+        width: 30px;
+        height: 30px;
+    }
+
+    /* ── Signal modal — full-width sheet ── */
+    .modal-overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .modal {
         max-width: 100%;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        border-bottom: none;
+        padding: 20px 16px;
+        max-height: 92vh;
+    }
+
+    /* ── TF modal 2-col on tablet ── */
+    #modalTimeframes {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* =============================================================
+   RESPONSIVE — MOBILE (≤ 480px)
+   ============================================================= */
+@media (max-width: 480px) {
+
+    /* Header */
+    .header-inner {
+        height: 52px;
+        padding: 0 12px;
+    }
+
+    .refresh-btn {
+        padding: 8px 10px;
+        gap: 0;
+        font-size: 0;
+    }
+
+    .refresh-btn svg {
+        font-size: 16px;
+    }
+
+    /* Stats */
+    .stat-value {
+        font-size: 20px;
+    }
+
+    .stat-item {
+        padding: 10px 8px;
+    }
+
+    /* Cards */
+    .asset-card {
+        padding: 16px 14px;
+    }
+
+    .asset-price {
+        font-size: 19px;
+    }
+
+    .overall-badge {
+        font-size: 10px;
+        padding: 5px 10px;
+    }
+
+    /* TF cells — compact */
+    .tf-cell {
+        padding: 8px 4px;
+        gap: 4px;
+    }
+
+    .tf-signal {
+        font-size: 16px;
+    }
+
+    .tf-ema-diff {
+        font-size: 8px;
+    }
+
+    .tf-rsi {
+        font-size: 8px;
+    }
+
+    .score-label {
+        font-size: 10px;
+    }
+
+    /* Controls */
+    .controls-inner {
+        padding: 8px 12px;
+        gap: 8px;
+    }
+
+    .search-input {
+        width: 120px;
+    }
+
+    /* Add Asset */
+    .add-panel-inner {
+        padding: 12px;
+    }
+
+    .add-panel-title {
+        font-size: 12px;
+    }
+
+    .add-input-wrap input {
+        font-size: 13px;
+        padding: 9px 12px;
+    }
+
+    .add-confirm-btn {
+        padding: 9px 16px;
+        font-size: 12px;
+    }
+
+    /* TV modal — hide badge to save space, name is enough */
+    .tv-asset-badge {
+        display: none;
+    }
+
+    .tv-asset-name {
+        font-size: 14px;
+    }
+
+    /* Signal modal */
+    .modal-header {
+        gap: 10px;
+    }
+
+    .modal-tf-card {
+        padding: 14px;
+    }
+
+    /* Info bottom bar */
+    .indicator-box {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+}
+
+/* =============================================================
+   RESPONSIVE — SMALL PHONE (≤ 360px)
+   ============================================================= */
+@media (max-width: 360px) {
+    .logo-text {
+        font-size: 14px;
+    }
+
+    .header-controls {
+        gap: 6px;
+    }
+
+    #notifBtn {
+        padding: 7px 8px;
+    }
+
+    .stat-value {
+        font-size: 18px;
+    }
+
+    .tf-grid {
+        gap: 5px;
+    }
+
+    .tf-buttons,
+    .signal-buttons {
+        flex-wrap: wrap;
+        border-radius: var(--radius-md);
+    }
+}
+
+/* =============================================================
+   TOUCH — always show card action buttons on touch devices
+   ============================================================= */
+@media (hover: none) and (pointer: coarse) {
+    .card-remove-btn {
+        opacity: 0.9;
+        width: 28px;
+        height: 28px;
+        top: 8px;
+        right: 8px;
+    }
+
+    .card-info-btn {
+        opacity: 0.9;
+        padding: 7px 10px;
+    }
+
+    .card-tv-hint {
+        opacity: 0.65;
+    }
+
+    /* Larger tap targets */
+    .tf-btn,
+    .signal-btn {
+        min-height: 36px;
+    }
+
+    .tv-itf {
+        min-height: 36px;
+    }
+
+    .add-sug-btn {
+        min-height: 44px;
     }
 }
