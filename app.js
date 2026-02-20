@@ -534,9 +534,6 @@ function buildCard(data, index) {
          data-symbol="${data.symbol.toLowerCase()}"
          onclick="openTVChart('${data.symbol}')">
 
-      <!-- Buton Remove (apare la hover) -->
-      <button class="card-remove-btn" onclick="removeAsset('${data.symbol}', event)" title="Elimină din dashboard">×</button>
-
       <div class="card-header">
         <div class="asset-info">
           <div class="asset-icon" style="color:${data.color};background:${data.color}22;">
@@ -549,8 +546,10 @@ function buildCard(data, index) {
         </div>
         <div class="card-header-right">
           <span class="overall-badge ${bcls}">${btxt}</span>
-          <!-- Buton detalii EMA/RSI (stopPropagation, nu deschide TV) -->
+          <!-- 📊 detalii EMA/RSI (stopPropagation) -->
           <button class="card-info-btn" onclick="openSignalModal('${data.symbol}', event)" title="Detalii EMA/RSI">📊</button>
+          <!-- × Elimină (stopPropagation, în flux — fără overlap) -->
+          <button class="card-remove-btn" onclick="removeAsset('${data.symbol}', event)" title="Elimină din dashboard">×</button>
         </div>
       </div>
 

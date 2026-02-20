@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solana Memecoins | CryptoFlip Dashboard</title>
+    <meta name="description"
+        content="Dashboard real-time care detectează flip-uri bullish și bearish pe memecoins lansate pe Solana (PumpSwap, Raydium, Meteora)." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        /* ── Memecoins extras ── */
+        .mc-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .mc-chip {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            background: var(--bg-glass);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .mc-chip.liq {
+            color: #a5b4fc;
+            border-color: rgba(99, 102, 241, 0.3);
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .mc-chip.vol {
+            color: #34d399;
+            border-color: rgba(52, 211, 153, 0.3);
+            background: rgba(52, 211, 153, 0.08);
+        }
+
+        .mc-chip.mcap {
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.3);
+            background: rgba(251, 191, 36, 0.08);
+        }
+
+        .mc-chip.dex {
+            color: #f472b6;
+            border-color: rgba(244, 114, 182, 0.3);
+            background: rgba(244, 114, 182, 0.08);
+        }
+
+        .mc-chip.age {
+            color: var(--text-muted);
+        }
+
+        .ds-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .ds-modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-hover);
+            border-radius: var(--radius-xl);
+            width: min(1100px, 100%);
+            height: min(800px, 90vh);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .ds-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            gap: 16px;
+            flex-shrink: 0;
+        }
+
+        .ds-asset-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .ds-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 800;
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+        }
+
+        .ds-icon img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .ds-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .ds-sym {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ds-price {
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+        }
+
+        .ds-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .ds-axiom-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+            padding: 7px 14px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .ds-axiom-btn:hover {
+            background: rgba(251, 191, 36, 0.2);
+            border-color: rgba(251, 191, 36, 0.5);
+        }
+
+        .ds-close-btn {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .ds-close-btn:hover {
+            background: var(--bearish-bg);
+            border-color: var(--bearish-border);
+            color: var(--bearish);
+        }
+
+        .ds-chart-wrap {
+            flex: 1;
+            min-height: 0;
+            position: relative;
+        }
+
+        .ds-chart-wrap iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .ds-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        @media (max-width:768px) {
+            .ds-overlay {
+                padding: 0;
+                align-items: flex-end;
+            }
+
+            .ds-modal {
+                width: 100%;
+                height: 96vh;
+                border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+                border-bottom: none;
+            }
+
+            .ds-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .ds-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        /* source badge */
+        .source-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 4px 10px;
+        }
+
+        .source-badge span {
+            color: #9945ff;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" fill="url(#logoGrad2)" stroke="rgba(255,255,255,0.2)"
+                            stroke-width="1" />
+                        <path d="M14 7L20 10.5V17.5L14 21L8 17.5V10.5L14 7Z" fill="rgba(255,255,255,0.15)" />
+                        <path d="M10 13L13 16L18 11" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <defs>
+                            <linearGradient id="logoGrad2" x1="2" y1="2" x2="26" y2="26">
+                                <stop offset="0%" stop-color="#9945ff" />
+                                <stop offset="100%" stop-color="#6366f1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <span class="logo-text">CryptoFlip</span>
+            </div>
+            <div class="header-controls">
+                <div class="last-update" id="lastUpdate">
+                    <div class="pulse-dot"></div>
+                    <span>Se actualizează...</span>
+                </div>
+                <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M13.65 2.35A8 8 0 1 0 15 8h-2a6 6 0 1 1-1.05-3.35L9 7h5V2l-0.35 0.35Z"
+                            fill="currentColor" />
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Navigation -->
+    <nav class="page-nav">
+        <a href="index.html" class="page-nav-link">
+            🔵 Top Crypto
+        </a>
+        <a href="memecoins.html" class="page-nav-link active">
+            ⚡ Solana Memecoins
+        </a>
+    </nav>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <div class="stats-bar-inner">
+            <div class="stat-item">
+                <span class="stat-value bullish-text" id="bullishCount">–</span>
+                <span class="stat-label">✅ Bullish 1H</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-value bearish-text" id="bearishCount">–</span>
+                <span class="stat-label">⛔ Bearish 1H</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-value" style="color:#f59e0b" id="weakCount">–</span>
+                <span class="stat-label">⚠️ Slab</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-value" id="totalAssets">–</span>
+                <span class="stat-label">Memecoins live</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="source-badge">via <span>GeckoTerminal</span> · Solana</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-section">
+        <div class="controls-inner">
+            <div class="filter-group">
+                <span class="filter-label">Semnal 1H:</span>
+                <div class="signal-buttons">
+                    <button class="signal-btn active" data-signal="all" onclick="filterSignal('all')">Toate</button>
+                    <button class="signal-btn bullish-filter" data-signal="confirmed-bullish"
+                        onclick="filterSignal('confirmed-bullish')">✅ Bullish</button>
+                    <button class="signal-btn bearish-filter" data-signal="confirmed-bearish"
+                        onclick="filterSignal('confirmed-bearish')">⛔ Bearish</button>
+                    <button class="signal-btn weak-filter" data-signal="weak" onclick="filterSignal('weak')">⚠️
+                        Slab</button>
+                </div>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Sort:</span>
+                <div class="signal-buttons">
+                    <button class="signal-btn active" data-sort="trending" onclick="sortBy('trending')">🔥
+                        Trending</button>
+                    <button class="signal-btn" data-sort="volume" onclick="sortBy('volume')">📊 Volume</button>
+                    <button class="signal-btn" data-sort="change" onclick="sortBy('change')">📈 Change</button>
+                    <button class="signal-btn" data-sort="liq" onclick="sortBy('liq')">💧 Lichidit.</button>
+                </div>
+            </div>
+            <div class="search-group">
+                <input type="text" class="search-input" id="searchInput" placeholder="Caută memecoin..."
+                    oninput="filterSearch(this.value)" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="loading-state" id="loadingState">
+            <div class="loading-spinner"></div>
+            <p>Se încarcă memecoins Solana...</p>
+            <span class="loading-sub">GeckoTerminal API · Trending pools</span>
+        </div>
+        <div class="error-state hidden" id="errorState">
+            <div class="error-icon">⚠️</div>
+            <h3>Eroare la încărcarea datelor</h3>
+            <p id="errorMessage">Nu s-a putut conecta la GeckoTerminal API.</p>
+            <button class="refresh-btn" onclick="refreshData()">Încearcă din nou</button>
+        </div>
+        <div class="dashboard-grid hidden" id="dashboardGrid"></div>
+    </main>
+
+    <!-- Info bar -->
+    <div class="info-panel">
+        <div class="info-inner">
+            <div class="info-item">
+                <div class="indicator-box bullish-bg">EMA9 &gt; EMA21 + RSI &gt; 50</div>
+                <span>= ✅ Confirmat Bullish</span>
+            </div>
+            <div class="info-item">
+                <div class="indicator-box bearish-bg">EMA9 &lt; EMA21 + RSI &lt; 50</div>
+                <span>= ⛔ Confirmat Bearish</span>
+            </div>
+            <div class="info-item info-note">
+                <span>Calculat pe 1H OHLCV · GeckoTerminal API · Click card = DexScreener chart</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- DexScreener Chart Modal -->
+    <div class="ds-overlay hidden" id="dsOverlay" onclick="closeDSOnBg(event)">
+        <div class="ds-modal" id="dsModal">
+            <div class="ds-header">
+                <div class="ds-asset-info">
+                    <div class="ds-icon" id="dsIcon"></div>
+                    <div>
+                        <div class="ds-name" id="dsName">Token</div>
+                        <div class="ds-sym" id="dsSym">SYMBOL/SOL</div>
+                    </div>
+                    <span class="ds-price" id="dsPrice">$0.00</span>
+                    <span class="tv-asset-badge" id="dsBadge"></span>
+                </div>
+                <div class="ds-controls">
+                    <a class="ds-axiom-btn" id="dsAxiomLink" href="#" target="_blank" rel="noopener">↗ DexScreener</a>
+                    <a class="tv-external-btn" id="dsAxiomTradeLink" href="#" target="_blank" rel="noopener">⚡ Axiom</a>
+                    <button class="ds-close-btn" onclick="closeDSChart()">✕</button>
+                </div>
+            </div>
+            <div class="ds-chart-wrap" id="dsChartWrap">
+                <div class="ds-loading" id="dsLoading">
+                    <div class="loading-spinner"></div>
+                    <span>Se încarcă chart-ul...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="memecoins.js"></script>
+</body>
+
+</html>

@@ -204,7 +204,41 @@ body::before {
     }
 }
 
+/* ===== Page Navigation ===== */
+.page-nav {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 24px;
+}
+
+.page-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 12px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.page-nav-link:hover {
+    color: var(--text-secondary);
+}
+
+.page-nav-link.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--accent);
+}
+
 /* ===== Stats Bar ===== */
+
 .stats-bar {
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border);
@@ -351,16 +385,20 @@ body::before {
 }
 
 .search-input {
-    background: var(--bg-glass);
-    border: 1px solid var(--border);
+    background: rgba(99, 102, 241, 0.06);
+    border: 1.5px solid rgba(99, 102, 241, 0.3);
     color: var(--text-primary);
     font-size: 13px;
     font-family: inherit;
-    padding: 8px 16px;
+    padding: 9px 18px 9px 40px;
     border-radius: 100px;
     outline: none;
-    width: 200px;
-    transition: all 0.2s ease;
+    width: 240px;
+    transition: all 0.25s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='8' stroke='%236366f1' stroke-width='2'/%3E%3Cpath d='m21 21-4.35-4.35' stroke='%236366f1' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 14px center;
+    background-size: 16px;
 }
 
 .search-input::placeholder {
@@ -368,10 +406,10 @@ body::before {
 }
 
 .search-input:focus {
-    border-color: rgba(99, 102, 241, 0.5);
-    background: rgba(99, 102, 241, 0.05);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    width: 240px;
+    border-color: var(--accent);
+    background-color: rgba(99, 102, 241, 0.08);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15), 0 0 20px rgba(99, 102, 241, 0.1);
+    width: 280px;
 }
 
 /* ===== Main Content ===== */
@@ -1407,29 +1445,34 @@ body::before {
     display: flex;
     align-items: center;
     gap: 7px;
-    background: rgba(99, 102, 241, 0.12);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    color: #a5b4fc;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+    border: 1.5px solid rgba(99, 102, 241, 0.5);
+    color: #c4b5fd;
     border-radius: 100px;
-    padding: 8px 16px;
+    padding: 9px 18px;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: inherit;
     white-space: nowrap;
+    box-shadow: 0 0 14px rgba(99, 102, 241, 0.2);
+    letter-spacing: 0.2px;
 }
 
 .add-asset-btn:hover {
-    background: rgba(99, 102, 241, 0.25);
-    border-color: rgba(99, 102, 241, 0.5);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(139, 92, 246, 0.35));
+    border-color: rgba(139, 92, 246, 0.7);
+    box-shadow: 0 0 22px rgba(99, 102, 241, 0.4);
     transform: translateY(-1px);
+    color: #fff;
 }
 
 .add-asset-btn-active {
-    background: rgba(99, 102, 241, 0.3) !important;
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 16px rgba(99, 102, 241, 0.3);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(139, 92, 246, 0.4)) !important;
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 24px rgba(99, 102, 241, 0.45) !important;
+    color: #fff !important;
 }
 
 /* ===== Add Asset Panel ===== */
@@ -1612,25 +1655,25 @@ body::before {
 }
 
 /* ===== Card: Remove Button ===== */
+/* In-flow inside card-header-right — no overlap with chart btn */
 .card-remove-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    background: rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.12);
     border: 1px solid rgba(239, 68, 68, 0.3);
     color: var(--bearish);
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1;
     cursor: pointer;
     opacity: 0;
-    transition: opacity 0.2s, transform 0.2s;
-    z-index: 5;
+    transition: opacity 0.2s, transform 0.2s, background 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    position: static;
+    /* ← in-flow, not absolute */
 }
 
 .asset-card:hover .card-remove-btn {
@@ -1646,7 +1689,8 @@ body::before {
 .card-header-right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    /* badge → 📊 → × in one row, left-to-right */
 }
 
 .card-info-btn {
