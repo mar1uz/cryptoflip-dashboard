@@ -301,10 +301,14 @@ body::before {
 
 /* ===== Controls Section ===== */
 .controls-section {
-    background: var(--bg-primary);
+    background: rgba(8, 11, 20, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border);
-    position: relative;
-    z-index: 1;
+    position: sticky;
+    top: 108px;
+    /* header(64) + nav(44) */
+    z-index: 80;
 }
 
 .controls-inner {
@@ -2061,14 +2065,25 @@ body::before {
 
     .search-group {
         flex-shrink: 0;
+        margin-left: 0;
+        order: -1;
+        /* Pune căutarea prima pe mobil */
+        position: sticky;
+        left: 0;
+        /* Rămâne fixă la scroll orizontal */
+        z-index: 10;
+        /* Un mic background pentru a nu se suprapune inestetic textele pe sub el */
+        background: inherit;
+        padding-right: 8px;
+        /* Spațiu între el și filtre când se dă scroll */
     }
 
     .search-input {
-        width: 140px;
+        width: 150px;
     }
 
     .search-input:focus {
-        width: 160px;
+        width: 180px;
     }
 
     /* ── Add asset panel ── */

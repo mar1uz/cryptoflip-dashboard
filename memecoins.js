@@ -61,7 +61,7 @@ async function fetchTrending() {
 }
 
 async function fetchOHLCV(poolAddress) {
-    const url = `${GT_BASE}/networks/solana/pools/${poolAddress}/ohlcv/hour?aggregate=1&limit=100&currency=usd&token=base`;
+    const url = `${GT_BASE}/networks/solana/pools/${poolAddress}/ohlcv/minute?aggregate=5&limit=1000&currency=usd&token=base`;
     try {
         const r = await smartFetch(url);
         const json = await r.json();
@@ -124,37 +124,35 @@ async function analyzePool(pool) {
     // The pool relationships give us the base token id
     const baseTokenId = pool.relationships?.base_token?.data?.id?.replace('solana_', '') || '';
 
-    let closes1h = null;
+    let closes5m = null;
     try {
         const ohlcv = await fetchOHLCV(paddr);
         if (ohlcv && ohlcv.length > EMA_SLOW) {
-            closes1h = ohlcv.map(c => c[4]); // index 4 = close
+            closes5m = ohlcv.map(c => c[4]);
         }
     } catch { }
 
-    const sig1h = getSignal(closes1h);
+    const sig5m = getSignal(closes5m);
 
-    // Approximate 4H: sample every 4th close
-    let sig4h = { signal: 'neutral', confirmed: false, rsi: null };
-    if (closes1h && closes1h.length >= EMA_SLOW * 4) {
-        const c4h = closes1h.filter((_, i) => i % 4 === 3);
-        sig4h = getSignal(c4h);
+    let sig30m = { signal: 'neutral', confirmed: false, rsi: null };
+    if (closes5m && closes5m.length >= EMA_SLOW * 6) {
+        const c30m = closes5m.filter((_, i) => i % 6 === 5);
+        sig30m = getSignal(c30m);
     }
 
-    // Approximate 1D: sample every 24th close
-    let sig1d = { signal: 'neutral', confirmed: false, rsi: null };
-    if (closes1h && closes1h.length >= EMA_SLOW * 24) {
-        const c1d = closes1h.filter((_, i) => i % 24 === 23);
-        sig1d = getSignal(c1d);
+    let sig1h = { signal: 'neutral', confirmed: false, rsi: null };
+    if (closes5m && closes5m.length >= EMA_SLOW * 12) {
+        const c1h = closes5m.filter((_, i) => i % 12 === 11);
+        sig1h = getSignal(c1h);
     }
 
-    // Determine overall signal based on 1H (primary for memes)
+    // Determine overall signal based on 5m (primary for fast moving memes)
     let confirmedSignal = 'neutral';
-    const isWeak = sig1h.signal !== 'neutral' && !sig1h.confirmed;
-    if (sig1h.signal === 'bullish' && sig1h.confirmed) confirmedSignal = 'confirmed-bullish';
-    else if (sig1h.signal === 'bearish' && sig1h.confirmed) confirmedSignal = 'confirmed-bearish';
-    else if (sig1h.signal === 'bullish') confirmedSignal = 'weak-bullish';
-    else if (sig1h.signal === 'bearish') confirmedSignal = 'weak-bearish';
+    const isWeak = sig5m.signal !== 'neutral' && !sig5m.confirmed;
+    if (sig5m.signal === 'bullish' && sig5m.confirmed) confirmedSignal = 'confirmed-bullish';
+    else if (sig5m.signal === 'bearish' && sig5m.confirmed) confirmedSignal = 'confirmed-bearish';
+    else if (sig5m.signal === 'bullish') confirmedSignal = 'weak-bullish';
+    else if (sig5m.signal === 'bearish') confirmedSignal = 'weak-bearish';
 
     const priceUsd = parseFloat(attr.base_token_price_usd) || 0;
     const change24h = parseFloat(attr.price_change_percentage?.h24) || 0;
@@ -184,12 +182,12 @@ async function analyzePool(pool) {
         ageHours,
         dex,
         buySell,
+        sig5m,
+        sig30m,
         sig1h,
-        sig4h,
-        sig1d,
         confirmedSignal,
         isWeak,
-        closes1h,
+        closes5m,
     };
 }
 
@@ -252,8 +250,9 @@ function buildCard(d, idx) {
     const chgCls1h = d.change1h >= 0 ? 'positive' : 'negative';
     const chgCls24 = d.change24h >= 0 ? 'positive' : 'negative';
 
+    const sig5mRsiClr = rsiColor(d.sig5m.rsi, d.sig5m.signal);
+    const sig30mRsiClr = rsiColor(d.sig30m.rsi, d.sig30m.signal);
     const sig1hRsiClr = rsiColor(d.sig1h.rsi, d.sig1h.signal);
-    const sig4hRsiClr = rsiColor(d.sig4h.rsi, d.sig4h.signal);
 
     return `
   <div class="asset-card ${cardCls} ${d.isWeak ? 'weak-card' : ''}"
@@ -284,19 +283,25 @@ function buildCard(d, idx) {
       </div>
     </div>
 
-    <!-- EMA/RSI cells for 1H and approx 4H -->
-    <div class="tf-grid" style="grid-template-columns: repeat(2, 1fr);">
+    <!-- EMA/RSI cells -->
+    <div class="tf-grid" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="tf-cell ${d.sig5m.confirmed ? `cell-${d.sig5m.signal} cell-confirmed` : d.sig5m.signal !== 'neutral' ? `cell-${d.sig5m.signal} cell-weak` : ''}">
+        <span class="tf-label">5m</span>
+        <span class="tf-signal">${sigEmoji(d.sig5m.signal, d.sig5m.confirmed)}</span>
+        <span class="tf-ema-diff">${d.sig5m.diff != null ? (d.sig5m.diff >= 0 ? '+' : '') + d.sig5m.diff.toFixed(2) + '%' : '–'}</span>
+        <span class="tf-rsi" style="color:${sig5mRsiClr}">RSI ${d.sig5m.rsi ? d.sig5m.rsi.toFixed(1) : '–'}</span>
+      </div>
+      <div class="tf-cell ${d.sig30m.confirmed ? `cell-${d.sig30m.signal} cell-confirmed` : d.sig30m.signal !== 'neutral' ? `cell-${d.sig30m.signal} cell-weak` : ''}">
+        <span class="tf-label">30m</span>
+        <span class="tf-signal">${sigEmoji(d.sig30m.signal, d.sig30m.confirmed)}</span>
+        <span class="tf-ema-diff">${d.sig30m.diff != null ? (d.sig30m.diff >= 0 ? '+' : '') + d.sig30m.diff.toFixed(2) + '%' : '–'}</span>
+        <span class="tf-rsi" style="color:${sig30mRsiClr}">RSI ${d.sig30m.rsi ? d.sig30m.rsi.toFixed(1) : '–'}</span>
+      </div>
       <div class="tf-cell ${d.sig1h.confirmed ? `cell-${d.sig1h.signal} cell-confirmed` : d.sig1h.signal !== 'neutral' ? `cell-${d.sig1h.signal} cell-weak` : ''}">
         <span class="tf-label">1H</span>
         <span class="tf-signal">${sigEmoji(d.sig1h.signal, d.sig1h.confirmed)}</span>
         <span class="tf-ema-diff">${d.sig1h.diff != null ? (d.sig1h.diff >= 0 ? '+' : '') + d.sig1h.diff.toFixed(2) + '%' : '–'}</span>
         <span class="tf-rsi" style="color:${sig1hRsiClr}">RSI ${d.sig1h.rsi ? d.sig1h.rsi.toFixed(1) : '–'}</span>
-      </div>
-      <div class="tf-cell ${d.sig4h.confirmed ? `cell-${d.sig4h.signal} cell-confirmed` : d.sig4h.signal !== 'neutral' ? `cell-${d.sig4h.signal} cell-weak` : ''}">
-        <span class="tf-label">~4H</span>
-        <span class="tf-signal">${sigEmoji(d.sig4h.signal, d.sig4h.confirmed)}</span>
-        <span class="tf-ema-diff" style="font-size:8px;">aprox.</span>
-        <span class="tf-rsi" style="color:${sig4hRsiClr}">RSI ${d.sig4h.rsi ? d.sig4h.rsi.toFixed(1) : '–'}</span>
       </div>
     </div>
 
