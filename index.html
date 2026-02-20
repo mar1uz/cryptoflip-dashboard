@@ -16,6 +16,7 @@
 </head>
 
 <body>
+
     <!-- Header -->
     <header class="header">
         <div class="header-inner">
@@ -57,20 +58,20 @@
         </div>
     </header>
 
-    <!-- Notification Permission Banner -->
+    <!-- Notification Banner -->
     <div class="notif-banner hidden" id="notifBanner">
         <div class="notif-banner-inner">
             <span class="notif-banner-icon">🔔</span>
             <div>
                 <strong>Activează alertele de flip!</strong>
-                <span>Primești notificări instant când un asset face un flip confirmat (EMA + RSI de acord).</span>
+                <span>Primești notificări instant când un asset face un flip confirmat (EMA + RSI).</span>
             </div>
             <button class="notif-banner-btn" onclick="requestNotifPermission()">Activează</button>
             <button class="notif-banner-dismiss" onclick="dismissBanner()">✕</button>
         </div>
     </div>
 
-    <!-- Hero Stats Bar -->
+    <!-- Stats Bar -->
     <div class="stats-bar">
         <div class="stats-bar-inner">
             <div class="stat-item">
@@ -100,7 +101,7 @@
         </div>
     </div>
 
-    <!-- Timeframe Filter -->
+    <!-- Controls Section -->
     <div class="controls-section">
         <div class="controls-inner">
             <div class="filter-group">
@@ -124,36 +125,65 @@
                         Slab</button>
                 </div>
             </div>
+            <!-- Add Asset Button -->
+            <button class="add-asset-btn" id="addAssetToggleBtn" onclick="toggleAddPanel()">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                Asset
+            </button>
             <div class="search-group">
-                <input type="text" class="search-input" id="searchInput" placeholder="Caută asset..."
+                <input type="text" class="search-input" id="searchInput" placeholder="Caută în dashboard..."
                     oninput="filterSearch(this.value)" />
             </div>
         </div>
     </div>
 
+    <!-- Add Asset Panel -->
+    <div class="add-panel hidden" id="addPanel">
+        <div class="add-panel-inner">
+            <div class="add-panel-content">
+                <div class="add-panel-title">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Adaugă Asset Nou
+                </div>
+                <div class="add-panel-form">
+                    <div class="add-input-wrap">
+                        <input type="text" id="addSymbolInput" placeholder="Ex: AAVEUSDT sau AAVE..."
+                            oninput="onAddInput(this.value)" onkeydown="onAddKeydown(event)" autocomplete="off"
+                            spellcheck="false" />
+                        <div class="add-suggestions" id="addSuggestions"></div>
+                    </div>
+                    <button class="add-confirm-btn" id="addConfirmBtn" onclick="confirmAddAsset()">
+                        <span id="addConfirmLabel">Adaugă</span>
+                    </button>
+                </div>
+                <div class="add-status" id="addStatus"></div>
+                <div class="add-hint">Introduce simbolul Binance (ex: BTCUSDT, ETHUSDT, AAVEUSDT)</div>
+            </div>
+            <button class="add-panel-close" onclick="toggleAddPanel()">✕</button>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Loading State -->
         <div class="loading-state" id="loadingState">
             <div class="loading-spinner"></div>
             <p>Se încarcă datele de piață...</p>
             <span class="loading-sub">Conectare la Binance API</span>
         </div>
-
-        <!-- Error State -->
         <div class="error-state hidden" id="errorState">
             <div class="error-icon">⚠️</div>
             <h3>Eroare la încărcarea datelor</h3>
             <p id="errorMessage">Nu s-a putut conecta la API.</p>
             <button class="refresh-btn" onclick="refreshData()">Încearcă din nou</button>
         </div>
-
-        <!-- Dashboard Grid -->
-        <div class="dashboard-grid hidden" id="dashboardGrid">
-        </div>
+        <div class="dashboard-grid hidden" id="dashboardGrid"></div>
     </main>
 
-    <!-- Legend / Info Panel -->
+    <!-- Info Panel -->
     <div class="info-panel">
         <div class="info-inner">
             <div class="info-item">
@@ -168,7 +198,7 @@
                 <div class="indicator-box"
                     style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">EMA ≠
                     RSI</div>
-                <span>= ⚠️ Semnal Slab (posibil fals)</span>
+                <span>= ⚠️ Semnal Slab</span>
             </div>
             <div class="info-item info-note">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -176,12 +206,42 @@
                     <path d="M7 6v4M7 4.5v.5" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"
                         stroke-linecap="round" />
                 </svg>
-                <span>Binance API · EMA 9/21 + RSI 14</span>
+                <span>Binance API · EMA 9/21 + RSI 14 · Click card = Chart TradingView</span>
             </div>
         </div>
     </div>
 
-    <!-- Asset Detail Modal -->
+    <!-- ===== TradingView Chart Modal ===== -->
+    <div class="tv-overlay hidden" id="tvOverlay" onclick="closeTVOnBg(event)">
+        <div class="tv-modal" id="tvModal">
+            <div class="tv-header">
+                <div class="tv-asset-info">
+                    <span class="tv-asset-icon" id="tvIcon">₿</span>
+                    <div class="tv-asset-text">
+                        <span class="tv-asset-name" id="tvName">Bitcoin</span>
+                        <span class="tv-asset-sym" id="tvSym">BTCUSDT</span>
+                    </div>
+                    <span class="tv-asset-price" id="tvPrice">–</span>
+                    <span class="tv-asset-badge" id="tvBadge"></span>
+                </div>
+                <div class="tv-controls">
+                    <div class="tv-itf-btns">
+                        <button class="tv-itf active" data-iv="60" onclick="changeTVInterval('60', this)">1H</button>
+                        <button class="tv-itf" data-iv="240" onclick="changeTVInterval('240', this)">4H</button>
+                        <button class="tv-itf" data-iv="D" onclick="changeTVInterval('D', this)">1D</button>
+                        <button class="tv-itf" data-iv="W" onclick="changeTVInterval('W', this)">1W</button>
+                    </div>
+                    <button class="tv-signals-btn" id="tvSignalsBtn" onclick="openSignalFromTV()">📊 EMA / RSI</button>
+                    <button class="tv-close-btn" onclick="closeTVChart()">✕</button>
+                </div>
+            </div>
+            <div class="tv-chart-wrap" id="tvChartWrap">
+                <!-- TradingView widget injected here by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== EMA/RSI Signal Modal ===== -->
     <div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal(event)">
         <div class="modal" id="assetModal">
             <button class="modal-close" onclick="closeModalDirect()">✕</button>
@@ -196,8 +256,8 @@
             <div class="modal-timeframes" id="modalTimeframes"></div>
             <div class="modal-legend">
                 <div class="legend-row">
-                    <span class="legend-dot bullish-bg"></span><span>✅ Confirmat Bullish — EMA9 > EMA21
-                        <strong>și</strong> RSI > 50</span>
+                    <span class="legend-dot bullish-bg"></span><span>✅ Confirmat Bullish — EMA9 &gt; EMA21
+                        <strong>și</strong> RSI &gt; 50</span>
                 </div>
                 <div class="legend-row">
                     <span class="legend-dot bearish-bg"></span><span>⛔ Confirmat Bearish — EMA9 &lt; EMA21
