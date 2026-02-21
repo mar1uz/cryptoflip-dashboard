@@ -9,7 +9,7 @@
 
 /* ── CONSTANTS ─────────────────────────────────────────── */
 const GT_BASE = 'https://api.geckoterminal.com/api/v2';
-const CORS_PROXY = 'https://api.allorigins.win/raw?url='; // fallback pt file:// local
+const CORS_PROXY = 'https://api.codetabs.com/v1/proxy?quest='; // fallback pt file:// local
 const EMA_FAST = 9;
 const EMA_SLOW = 21;
 const RSI_PERIOD = 14;

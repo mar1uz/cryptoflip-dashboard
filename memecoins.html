@@ -345,6 +345,10 @@
     <!-- Controls -->
     <div class="controls-section">
         <div class="controls-inner">
+            <div class="search-group">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search..."
+                    oninput="filterSearch(this.value)" />
+            </div>
             <div class="filter-group">
                 <span class="filter-label">Semnal 1H:</span>
                 <div class="signal-buttons">
@@ -366,10 +370,6 @@
                     <button class="signal-btn" data-sort="change" onclick="sortBy('change')">📈 Change</button>
                     <button class="signal-btn" data-sort="liq" onclick="sortBy('liq')">💧 Lichidit.</button>
                 </div>
-            </div>
-            <div class="search-group">
-                <input type="text" class="search-input" id="searchInput" placeholder="Caută memecoin..."
-                    oninput="filterSearch(this.value)" />
             </div>
         </div>
     </div>

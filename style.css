@@ -384,9 +384,7 @@ body::before {
     box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
 }
 
-.search-group {
-    margin-left: auto;
-}
+
 
 .search-input {
     background: rgba(99, 102, 241, 0.06);

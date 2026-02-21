@@ -115,6 +115,10 @@
     <!-- Controls Section -->
     <div class="controls-section">
         <div class="controls-inner">
+            <div class="search-group">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search..."
+                    oninput="filterSearch(this.value)" />
+            </div>
             <div class="filter-group">
                 <span class="filter-label">Timeframe:</span>
                 <div class="tf-buttons" id="tfButtons">
@@ -137,16 +141,12 @@
                 </div>
             </div>
             <!-- Add Asset Button -->
-            <button class="add-asset-btn" id="addAssetToggleBtn" onclick="toggleAddPanel()">
+            <button class="add-asset-btn" id="addAssetToggleBtn" onclick="toggleAddPanel()" style="margin-left: auto;">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                     <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                 </svg>
                 Asset
             </button>
-            <div class="search-group">
-                <input type="text" class="search-input" id="searchInput" placeholder="Caută în dashboard..."
-                    oninput="filterSearch(this.value)" />
-            </div>
         </div>
     </div>
 
