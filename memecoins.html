@@ -350,6 +350,16 @@
                     oninput="filterSearch(this.value)" />
             </div>
             <div class="filter-group">
+                <span class="filter-label">Sort:</span>
+                <div class="signal-buttons">
+                    <button class="signal-btn active" data-sort="trending" onclick="sortBy('trending')">🔥
+                        Trending</button>
+                    <button class="signal-btn" data-sort="volume" onclick="sortBy('volume')">📊 Volume</button>
+                    <button class="signal-btn" data-sort="change" onclick="sortBy('change')">📈 Change</button>
+                    <button class="signal-btn" data-sort="liq" onclick="sortBy('liq')">💧 Lichidit.</button>
+                </div>
+            </div>
+            <div class="filter-group">
                 <span class="filter-label">Semnal 1H:</span>
                 <div class="signal-buttons">
                     <button class="signal-btn active" data-signal="all" onclick="filterSignal('all')">Toate</button>
@@ -359,16 +369,6 @@
                         onclick="filterSignal('confirmed-bearish')">⛔ Bearish</button>
                     <button class="signal-btn weak-filter" data-signal="weak" onclick="filterSignal('weak')">⚠️
                         Slab</button>
-                </div>
-            </div>
-            <div class="filter-group">
-                <span class="filter-label">Sort:</span>
-                <div class="signal-buttons">
-                    <button class="signal-btn active" data-sort="trending" onclick="sortBy('trending')">🔥
-                        Trending</button>
-                    <button class="signal-btn" data-sort="volume" onclick="sortBy('volume')">📊 Volume</button>
-                    <button class="signal-btn" data-sort="change" onclick="sortBy('change')">📈 Change</button>
-                    <button class="signal-btn" data-sort="liq" onclick="sortBy('liq')">💧 Lichidit.</button>
                 </div>
             </div>
         </div>
