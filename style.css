@@ -255,6 +255,14 @@ body::before {
     gap: 0;
 }
 
+/* Top Actions (Search & Add Assets) wrapper inside Stats Bar */
+.top-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .stat-item {
     display: flex;
     flex-direction: column;
@@ -2057,27 +2065,26 @@ body::before {
         display: none;
     }
 
-    .search-group {
-        flex-shrink: 0;
+    /* ── Top Actions (Search + Add) ── */
+    .top-actions {
+        width: 100%;
         margin-left: 0;
-        order: -1;
-        /* Pune căutarea prima pe mobil */
-        position: sticky;
-        left: 0;
-        /* Rămâne fixă la scroll orizontal */
-        z-index: 10;
-        /* Un mic background pentru a nu se suprapune inestetic textele pe sub el */
-        background: inherit;
-        padding-right: 8px;
-        /* Spațiu între el și filtre când se dă scroll */
+        padding: 12px 16px;
+        border-top: 1px solid var(--border);
+        justify-content: space-between;
+    }
+
+    .search-group {
+        flex: 1;
+        margin-right: 12px;
     }
 
     .search-input {
-        width: 150px;
+        width: 100%;
     }
 
     .search-input:focus {
-        width: 180px;
+        width: 100%;
     }
 
     /* ── Add asset panel ── */

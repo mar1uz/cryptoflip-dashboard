@@ -110,13 +110,17 @@
                 <span class="stat-label">Assets</span>
             </div>
 
-            <!-- Add Asset moved to Stats Bar -->
-            <div style="margin-left: auto; display: flex; align-items: center; padding-right: 16px;">
+            <!-- Top Actions (Search + Add Assets) -->
+            <div class="top-actions">
+                <div class="search-group">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search..."
+                        oninput="filterSearch(this.value)" />
+                </div>
                 <button class="add-asset-btn" id="addAssetToggleBtn" onclick="toggleAddPanel()">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                         <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                     </svg>
-                    Asset
+                    + Assets
                 </button>
             </div>
         </div>
@@ -125,10 +129,6 @@
     <!-- Controls Section -->
     <div class="controls-section">
         <div class="controls-inner">
-            <div class="search-group">
-                <input type="text" class="search-input" id="searchInput" placeholder="Search..."
-                    oninput="filterSearch(this.value)" />
-            </div>
             <div class="filter-group">
                 <span class="filter-label">Timeframe:</span>
                 <div class="tf-buttons" id="tfButtons">
