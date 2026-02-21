@@ -1734,12 +1734,7 @@ body::before {
     text-decoration: none;
     font-family: inherit;
     white-space: nowrap;
-    opacity: 0;
     display: inline-block;
-}
-
-.asset-card:hover .padre-btn {
-    opacity: 1;
 }
 
 .padre-btn:hover {
