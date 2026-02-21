@@ -270,8 +270,9 @@ function buildCard(d, idx) {
           <div class="asset-symbol" style="font-size:9px;">${d.dex.toUpperCase()}</div>
         </div>
       </div>
-      <div class="card-header-right">
+      <div class="card-header-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
         <span class="overall-badge ${bcls}">${btxt}</span>
+        ${d.baseTokenId ? `<a class="padre-btn" href="https://trade.padre.gg/token/${d.baseTokenId}" target="_blank" onclick="event.stopPropagation();" title="Trade pe Padre.gg">Trade Padre ↗</a>` : ''}
       </div>
     </div>
 
