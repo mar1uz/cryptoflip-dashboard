@@ -146,6 +146,12 @@ async function analyzePool(pool) {
         sig1h = getSignal(c1h);
     }
 
+    let sig4h = { signal: 'neutral', confirmed: false, rsi: null };
+    if (closes5m && closes5m.length >= 48) {
+        const c4h = closes5m.filter((_, i) => i % 48 === 47);
+        sig4h = getSignal(c4h);
+    }
+
     // Determine overall signal based on 5m (primary for fast moving memes)
     let confirmedSignal = 'neutral';
     const isWeak = sig5m.signal !== 'neutral' && !sig5m.confirmed;
@@ -185,6 +191,7 @@ async function analyzePool(pool) {
         sig5m,
         sig30m,
         sig1h,
+        sig4h,
         confirmedSignal,
         isWeak,
         closes5m,
@@ -253,6 +260,7 @@ function buildCard(d, idx) {
     const sig5mRsiClr = rsiColor(d.sig5m.rsi, d.sig5m.signal);
     const sig30mRsiClr = rsiColor(d.sig30m.rsi, d.sig30m.signal);
     const sig1hRsiClr = rsiColor(d.sig1h.rsi, d.sig1h.signal);
+    const sig4hRsiClr = rsiColor(d.sig4h.rsi, d.sig4h.signal);
 
     return `
   <div class="asset-card ${cardCls} ${d.isWeak ? 'weak-card' : ''}"
@@ -285,7 +293,7 @@ function buildCard(d, idx) {
     </div>
 
     <!-- EMA/RSI cells -->
-    <div class="tf-grid" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="tf-grid" style="grid-template-columns: repeat(4, 1fr);">
       <div class="tf-cell ${d.sig5m.confirmed ? `cell-${d.sig5m.signal} cell-confirmed` : d.sig5m.signal !== 'neutral' ? `cell-${d.sig5m.signal} cell-weak` : ''}">
         <span class="tf-label">5m</span>
         <span class="tf-signal">${sigEmoji(d.sig5m.signal, d.sig5m.confirmed)}</span>
@@ -303,6 +311,12 @@ function buildCard(d, idx) {
         <span class="tf-signal">${sigEmoji(d.sig1h.signal, d.sig1h.confirmed)}</span>
         <span class="tf-ema-diff">${d.sig1h.diff != null ? (d.sig1h.diff >= 0 ? '+' : '') + d.sig1h.diff.toFixed(2) + '%' : '–'}</span>
         <span class="tf-rsi" style="color:${sig1hRsiClr}">RSI ${d.sig1h.rsi ? d.sig1h.rsi.toFixed(1) : '–'}</span>
+      </div>
+      <div class="tf-cell ${d.sig4h.confirmed ? `cell-${d.sig4h.signal} cell-confirmed` : d.sig4h.signal !== 'neutral' ? `cell-${d.sig4h.signal} cell-weak` : ''}">
+        <span class="tf-label">4H</span>
+        <span class="tf-signal">${sigEmoji(d.sig4h.signal, d.sig4h.confirmed)}</span>
+        <span class="tf-ema-diff">${d.sig4h.diff != null ? (d.sig4h.diff >= 0 ? '+' : '') + d.sig4h.diff.toFixed(2) + '%' : '–'}</span>
+        <span class="tf-rsi" style="color:${sig4hRsiClr}">RSI ${d.sig4h.rsi ? d.sig4h.rsi.toFixed(1) : '–'}</span>
       </div>
     </div>
 
